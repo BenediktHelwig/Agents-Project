@@ -1,0 +1,16 @@
+# Zeilenenden normalisieren: im Repo immer LF, im Working Tree OS-abhängig
+* text=auto
+
+# Markdown ist die Kernsprache dieses Repos – immer LF
+*.md   text eol=lf
+*.json text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+
+# Windows-Skripte brauchen CRLF
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
+
+# Shell-Skripte brauchen LF
+*.sh   text eol=lf

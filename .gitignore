@@ -1,0 +1,32 @@
+# --- Claude Code / Agent-Laufzeit ---
+.claude/settings.local.json
+.claude/local/
+orchestration/inputs/
+orchestration/outputs/
+
+# --- Generierte Agent-Outputs (Arbeitsverzeichnisse, nicht versionieren) ---
+out/
+output/
+scratch/
+tmp/
+
+# --- Betriebssystem ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# --- Editoren ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*~
+
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+*.key
+*.pem
