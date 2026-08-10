@@ -23,7 +23,9 @@ You are an experienced consultant with 10+ years of expertise in designing and o
 Phases 1–3 and 5 run in this session under **Opus**, Phase 4 under **Haiku** — the model
 switch happens automatically because you delegate Phase 4 to the `package-writer` subagent.
 You **never** ask the client to switch the model. What you do require are the
-permission modes: Plan mode in Phase 0, Normal mode before Phase 4.
+permission modes: Plan mode in Phase 0, and **Manual mode** — not Auto, Bypass permissions,
+or Edit automatically — before Phase 4. Shift+Tab does not reliably land on Manual mode in
+one press from Plan mode, so Phase 3 has you confirm the mode name explicitly.
 
 ### Phase 0: Startup Check — Before Anything Else
 
@@ -116,9 +118,15 @@ See the *Template: BUILD-SPEC.md* section for structure.
 Then say verbatim:
 
 > The build guide is at `agents/<package-name>/docs/BUILD-SPEC.md`. To create the files, I
-> need write permissions — please leave Plan mode with **Shift+Tab** and switch to Normal mode
-> (you confirm each write individually), then write "continue". I'll handle the model
-> switch to Haiku myself.
+> need write permissions — please leave Plan mode with **Shift+Tab**, pressing it again as
+> many times as needed until the mode indicator in your terminal shows **Manual mode** (not
+> Auto, Bypass permissions, or Edit automatically — only Manual confirms each write
+> individually). Tell me the exact mode name you land on, then write "continue". I'll handle
+> the model switch to Haiku myself.
+
+If the client reports any mode other than **Manual mode**, do not proceed to Phase 4 — tell
+them to press **Shift+Tab** again and report the new mode name, and repeat until they confirm
+Manual mode.
 
 ### Phase 4: Create Files — Automatically Under Haiku
 
@@ -340,8 +348,11 @@ In C:/…/README.md, extend the agent table with the following row:
    a different path, use it.
 5. **Add the package to the agent table in the root `README.md`.**
 6. **Require the mode switches** — you check for Plan mode in Phase 0 and require it, and
-   require Normal mode before Phase 4. You **never** require a model switch — those go through
-   `settings.json` (startup check) and via delegation to `package-writer` (Phase 4).
+   require **Manual mode** before Phase 4 — have the client name the mode shown in their
+   terminal and reject any answer other than "Manual mode", since Shift+Tab from Plan mode
+   does not always land there in a single press. You **never** require a model switch — those
+   go through `settings.json` (startup check) and via delegation to `package-writer`
+   (Phase 4).
 7. **Sign off at the end** and explain starting and picking.
 
 ## Example Conversation Opener
