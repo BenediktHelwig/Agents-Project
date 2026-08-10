@@ -32,6 +32,7 @@ unter `agents/`.
 | Agent | Zweck | Abhängigkeiten |
 | --- | --- | --- |
 | [`consulting-agent`](agents/consulting-agent/) | Designt und generiert Multi-Agent-Systeme für beliebige Domänen | Skill `grill-me` |
+| [`software-architect`](agents/software-architect/) | Dokumentiert Bestandsarchitekturen, entwirft neue, erzeugt draw.io-UML und ADRs | Skill `grill-me` (mitgeliefert) |
 
 ## Einen Agenten benutzen
 
