@@ -1,77 +1,77 @@
-# Consulting-Agent
+# Consulting Agent
 
-Ein Berater-Agent mit Persona „10+ Jahre Erfahrung in Agent-Orchestrierung". Er nimmt
-Anforderungen durch intensives Nachfragen auf, diagnostiziert daraus die nötigen Agent-Rollen
-und generiert ein fertiges Multi-Agent-System.
+A consultant agent with the persona "10+ years of experience in agent orchestration". It gathers
+requirements through intensive questioning, diagnoses the necessary agent roles from that,
+and generates a finished multi-agent system.
 
-## Was er produziert
+## What It Produces
 
 ```
-agents/<paket-name>/
-├── CLAUDE.md                     # Was das System ist, wie man es startet
-├── README.md                     # Zweck, Picken, Abhängigkeiten
+agents/<package-name>/
+├── CLAUDE.md                     # What the system is, how to start it
+├── README.md                     # Purpose, picking, dependencies
 ├── .claude/
 │   ├── agents/
-│   │   ├── orchestrator.md       # model: opus  (entfällt beim Einzelagenten)
-│   │   └── <spezialist>.md       # model: haiku
+│   │   ├── orchestrator.md       # model: opus  (omitted for a single agent)
+│   │   └── <specialist>.md       # model: haiku
 │   └── skills/
-│       └── grill-me/SKILL.md     # mitgeliefert
+│       └── grill-me/SKILL.md     # bundled
 └── docs/
-    ├── ORCHESTRATION-DESIGN.md   # nur beim Orchester
-    └── BUILD-SPEC.md             # die abgearbeitete Bauanleitung
+    ├── ORCHESTRATION-DESIGN.md   # only for an orchestra
+    └── BUILD-SPEC.md             # the completed build guide
 ```
 
-Das Paket ist selbstenthalten: Ein Kopiervorgang genügt, um es in ein anderes Repo zu übernehmen.
+The package is self-contained: a single copy operation is enough to adopt it into another repo.
 
-Der Consultant **orchestriert nicht selbst** — er berät und generiert. Die Ausführung übernehmen
-die erzeugten Agenten.
+The consultant **does not orchestrate itself** — it advises and generates. The generated
+agents take over execution.
 
-## Starten
+## Starting
 
 ```bash
 cd agents/consulting-agent
 claude
 ```
 
-Der Agent beginnt von sich aus mit der Anforderungsaufnahme. Die Session startet dank
-`.claude/settings.json` automatisch auf Opus im Plan-Mode. Während des Laufs fordert der Agent
-dich auf, vor Phase 4 in den Normal-Mode zu wechseln (Shift+Tab). Der Modellwechsel auf Haiku
-(Phase 4) und zurück auf Opus (Phase 5) läuft über den `package-writer`-Subagent — keine
-manuellen Wechsel nötig. Standardmäßig legt er das Paket unter `agents/<paket-name>/` dieses
-Repos ab; einen abweichenden Zielpfad nennst du ihm im Gespräch.
+The agent begins requirements gathering on its own. Thanks to
+`.claude/settings.json`, the session automatically starts on Opus in Plan mode. During the
+run, the agent prompts you to switch to Normal mode (Shift+Tab) before Phase 4. The model
+switch to Haiku (Phase 4) and back to Opus (Phase 5) runs through the `package-writer`
+subagent — no manual switching needed. By default, it places the package under
+`agents/<package-name>/` of this repo; you name a different target path during the conversation.
 
-## Abhängigkeiten
+## Dependencies
 
-| Skill | Herkunft | Wozu |
+| Skill | Origin | Purpose |
 | --- | --- | --- |
-| `grill-me` | `.claude/skills/grill-me/` (Repo-Root) | Phase 1 des Beratungs-Workflows: die Anforderungen relentless durchfragen |
+| `grill-me` | `.claude/skills/grill-me/` (repo root) | Phase 1 of the consulting workflow: relentlessly questioning the requirements |
 
-Beim Übernehmen in ein anderes Repo: diesen Ordner kopieren **und** `grill-me` nach
-`.claude/skills/grill-me/` im Zielrepo mitkopieren. Ohne den Skill fehlt dem Agent seine
-Kernmechanik.
+When adopting into another repo: copy this folder **and** copy `grill-me` along to
+`.claude/skills/grill-me/` in the target repo. Without the skill, the agent is missing its
+core mechanic.
 
-## Aufbau
+## Structure
 
-| Datei | Inhalt |
+| File | Content |
 | --- | --- |
-| [`CLAUDE.md`](CLAUDE.md) | Die Agent-Definition: Persona, 5-Phasen-Workflow, Templates für generierte Agenten und Konfiguration |
-| [`.claude/settings.json`](.claude/settings.json) | Startkonfiguration: `model: opus`, `permissions.defaultMode: plan` |
-| [`.claude/agents/package-writer.md`](.claude/agents/package-writer.md) | Subagent für Phase 4: Dateien-Anlage unter Haiku |
-| [`docs/CONTEXT-SUMMARY.md`](docs/CONTEXT-SUMMARY.md) | Entstehungskontext, Kern-Anforderungen und Design-Entscheidungen |
+| [`CLAUDE.md`](CLAUDE.md) | The agent definition: persona, 5-phase workflow, templates for generated agents and configuration |
+| [`.claude/settings.json`](.claude/settings.json) | Startup configuration: `model: opus`, `permissions.defaultMode: plan` |
+| [`.claude/agents/package-writer.md`](.claude/agents/package-writer.md) | Subagent for Phase 4: file creation under Haiku |
+| [`docs/CONTEXT-SUMMARY.md`](docs/CONTEXT-SUMMARY.md) | Origin context, core requirements, and design decisions |
 
-## Design-Entscheidungen
+## Design Decisions
 
-- **grill-me läuft automatisch** — der Agent fragt nie, ob er nachfragen darf.
-- **Opus plant, Haiku baut, Opus nimmt ab** — der Modellwechsel geschieht automatisch über
-  `.claude/settings.json` (Startcheck) und über den `package-writer`-Subagent (Phase 4). Der
-  Consultant fordert niemals einen Modellwechsel an; er fordert nur Permission-Modes an
-  (Plan-Mode, Normal-Mode).
-- **Generierte Rollen sind echte Subagents** unter `.claude/agents/` mit `model:` im Frontmatter.
-  Der Orchestrator delegiert über das Agent-Tool; es gibt kein dateibasiertes JSON-Protokoll und
-  keine `orchestration-config.json`.
-- **Ein Agent = ein festes Modell** — das Modell wird pro Agent im Gespräch bestimmt, jeweils mit
-  Empfehlung des Consultants.
-- **Nur der Orchestrator grillt** — Spezialisten haben als Subagents keinen Gesprächspartner und
-  bekommen stattdessen eine Selbstprüf-Checkliste.
-- **Das Paket bringt `grill-me` mit** — herauspicken heißt: einen Ordner kopieren.
-- **Lokal only** — keine API-Calls, kein Internet.
+- **grill-me runs automatically** — the agent never asks whether it may ask questions.
+- **Opus plans, Haiku builds, Opus signs off** — the model switch happens automatically via
+  `.claude/settings.json` (startup check) and via the `package-writer` subagent (Phase 4). The
+  consultant never requires a model switch; it only requires permission modes
+  (Plan mode, Normal mode).
+- **Generated roles are real subagents** under `.claude/agents/` with `model:` in the frontmatter.
+  The orchestrator delegates via the Agent tool; there is no file-based JSON protocol and
+  no `orchestration-config.json`.
+- **One agent = one fixed model** — the model is determined per agent in conversation, each with
+  the consultant's recommendation.
+- **Only the orchestrator grills** — as subagents, specialists have no conversation partner and
+  instead get a self-check checklist.
+- **The package brings `grill-me` along** — picking means copying a folder.
+- **Local only** — no API calls, no internet.

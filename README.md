@@ -1,68 +1,68 @@
 # Agents
 
-Eine Sammlung spezialisierter Claude-Code-Agenten. Jeder Agent liegt eigenständig unter
-`agents/<agent-name>/` und lässt sich einzeln in ein anderes Repository übernehmen.
+A collection of specialized Claude Code agents. Each agent lives self-contained under
+`agents/<agent-name>/` and can be adopted individually into another repository.
 
-Ausgangspunkt ist der **Consulting-Agent**: ein Berater, der per Interview-Verfahren
-Anforderungen aufnimmt und daraus fertige Multi-Agent-Systeme entwirft und generiert.
-Die von ihm erzeugten Agenten wandern zurück in dieses Repo — als jeweils eigener Ordner
-unter `agents/`.
+The starting point is the **Consulting Agent**: a consultant who gathers requirements
+through an interview process and designs and generates finished multi-agent systems from
+them. The agents it generates flow back into this repo — each as its own folder
+under `agents/`.
 
 ---
 
-## Struktur
+## Structure
 
 ```
 .
 ├── .claude/
-│   └── skills/            # Skills, die für alle Agenten in diesem Repo verfügbar sind
+│   └── skills/            # Skills available to all agents in this repo
 │       └── grill-me/
-├── agents/                # Ein Ordner pro Agent – jeder für sich vollständig
+├── agents/                # One folder per agent – each self-contained
 │   └── consulting-agent/
-│       ├── CLAUDE.md      # Die Agent-Definition (Persona, Workflow, Output-Format)
-│       ├── README.md      # Zweck, Einsatz, Abhängigkeiten
-│       └── docs/          # Entstehungskontext, Design-Entscheidungen
-├── CLAUDE.md              # Konventionen dieses Repos (gilt für alle Agenten)
+│       ├── CLAUDE.md      # The agent definition (persona, workflow, output format)
+│       ├── README.md      # Purpose, usage, dependencies
+│       └── docs/          # Origin context, design decisions
+├── CLAUDE.md              # Conventions of this repo (applies to all agents)
 ├── .gitignore
 └── .gitattributes
 ```
 
-## Vorhandene Agenten
+## Existing Agents
 
-| Agent | Zweck | Abhängigkeiten |
+| Agent | Purpose | Dependencies |
 | --- | --- | --- |
-| [`consulting-agent`](agents/consulting-agent/) | Designt und generiert Multi-Agent-Systeme für beliebige Domänen | Skill `grill-me` |
-| [`software-architect`](agents/software-architect/) | Dokumentiert Bestandsarchitekturen, entwirft neue, erzeugt draw.io-UML und ADRs | Skill `grill-me` (mitgeliefert) |
+| [`consulting-agent`](agents/consulting-agent/) | Designs and generates multi-agent systems for any domain | Skill `grill-me` |
+| [`software-architect`](agents/software-architect/) | Documents existing architectures, designs new ones, generates draw.io UML and ADRs | Skill `grill-me` (bundled) |
 
-## Einen Agenten benutzen
+## Using an Agent
 
-Claude Code lädt die `CLAUDE.md` aus dem Verzeichnis, in dem es gestartet wird. Um mit einem
-Agenten zu arbeiten, startest du die Session in dessen Ordner:
+Claude Code loads the `CLAUDE.md` from the directory it is started in. To work with an
+agent, start the session in its folder:
 
 ```bash
 cd agents/consulting-agent
 claude
 ```
 
-Die Skills aus `.claude/skills/` des Repo-Roots stehen dabei zur Verfügung, weil Claude Code
-die Verzeichnisse oberhalb des Arbeitsverzeichnisses mit einbezieht.
+The skills from the repo root's `.claude/skills/` are available in that case, because Claude
+Code includes the directories above the working directory.
 
-> **Hinweis:** Ein `claude`-Start im Repo-Root lädt bewusst *nicht* den Consulting-Agent,
-> sondern die Repo-Konventionen aus [`CLAUDE.md`](CLAUDE.md). So bleibt das Repo neutral,
-> wenn mehrere Agenten nebeneinander existieren.
+> **Note:** Starting `claude` at the repo root deliberately does *not* load the Consulting
+> Agent, but the repo conventions from [`CLAUDE.md`](CLAUDE.md). This keeps the repo neutral
+> when multiple agents exist side by side.
 
-## Einen Agenten in ein anderes Repo übernehmen
+## Adopting an Agent into Another Repo
 
-Jeder Agent ist so geschnitten, dass er sich mit einem Kopiervorgang herauslösen lässt:
+Every agent is scoped so it can be extracted with a single copy operation:
 
-1. Ordner `agents/<agent-name>/` in das Zielrepo kopieren.
-2. Die im README des Agenten unter *Abhängigkeiten* genannten Skills nach
-   `.claude/skills/<skill-name>/` im Zielrepo kopieren.
-3. Fertig — im Zielrepo `cd` in den Agent-Ordner und `claude` starten.
+1. Copy the `agents/<agent-name>/` folder into the target repo.
+2. Copy the skills named under *Dependencies* in the agent's README to
+   `.claude/skills/<skill-name>/` in the target repo.
+3. Done — `cd` into the agent folder in the target repo and start `claude`.
 
-Es gibt keine repo-weiten Build-Schritte, keine Pfad-Magie und keine geteilten Zustände
-zwischen den Agenten. Alles ist Markdown und JSON.
+There are no repo-wide build steps, no path magic, and no shared state
+between agents. Everything is Markdown and JSON.
 
-## Einen neuen Agenten hinzufügen
+## Adding a New Agent
 
-Konventionen und Mindestanforderungen stehen in [`CLAUDE.md`](CLAUDE.md).
+Conventions and minimum requirements are in [`CLAUDE.md`](CLAUDE.md).

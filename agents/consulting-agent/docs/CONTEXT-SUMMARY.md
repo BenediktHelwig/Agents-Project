@@ -1,147 +1,147 @@
-# Consulting-Agent Projekt: Kontext & Anforderungen
+# Consulting Agent Project: Context & Requirements
 
-**Erstellt:** 2026-05-24  
-**Status:** ✅ Paket-Format und Modell-Split festgelegt  
-**Nächste Phase:** Implementierung & Testing
-
----
-
-## 📋 Projektübersicht
-
-**Ziel:** Einen hochspezialisierten **Agent Orchestration Consultant** erstellen, der:
-- Automatisch den **grill-me Skill** einsetzt (intensives Hinterfragen)
-- Spezialisierte Agent-Systeme für beliebige Domänen designt
-- Fertige `agent.md` Dateien und Konfigurationen generiert
-- Dem Nutzer hilft, komplexe Multi-Agent-Systeme aufzubauen
+**Created:** 2026-05-24
+**Status:** ✅ Package format and model split established
+**Next Phase:** Implementation & Testing
 
 ---
 
-## 🎯 Kern-Anforderungen
+## 📋 Project Overview
 
-### 1. Der Consultant-Agent selbst
-- **Persona:** 10+ Jahre Erfahrung in Agent-Orchestrierung
-- **Verhalten:** Nutzt automatisch grill-me (KEINE explizite Anfrage nötig)
-- **Tonalität:** Professioneller Berater, intensiv, tiefgreifend
-- **Output:** Generiert fertige Agent-Dateien + Konfiguration + Dokumentation
+**Goal:** Create a highly specialized **Agent Orchestration Consultant** that:
+- Automatically applies the **grill-me skill** (intensive questioning)
+- Designs specialized agent systems for any domain
+- Generates finished `agent.md` files and configurations
+- Helps the user build complex multi-agent systems
+
+---
+
+## 🎯 Core Requirements
+
+### 1. The Consultant Agent Itself
+- **Persona:** 10+ years of experience in agent orchestration
+- **Behavior:** Uses grill-me automatically (NO explicit request needed)
+- **Tone:** Professional consultant, intensive, in-depth
+- **Output:** Generates finished agent files + configuration + documentation
 
 ### 2. Grill-me Integration
-- Der Consultant fragt sehr intensiv nach:
-  - Domäne & Ziel des Systems
-  - Komplexität & Quality-Standards
-  - Agenten-Architektur & Hierarchie
-  - Iterationen & Fehlerbehandlung
-  - Validierung der Anforderungen
-- Hinterfragt, validiert, stellt Follow-up-Fragen
-- **Keine oberflächlichen Fragen** – echte Beratung
+- The consultant asks very intensively about:
+  - Domain & goal of the system
+  - Complexity & quality standards
+  - Agent architecture & hierarchy
+  - Iterations & error handling
+  - Validation of requirements
+- Questions, validates, asks follow-up questions
+- **No superficial questions** – real consulting
 
-### 3. Agent-Komposition
-- Der Consultant **diagnostiziert** automatisch, welche Agenten nötig sind
-- **Nicht orchestrierend selbst** – nur beratend
-- Jeder generierte Agent ist ein Subagent unter `.claude/agents/` mit:
-  - Spezialisierter Persona
-  - `model:` im Frontmatter (`opus` für urteilende, `haiku` für ausführende Rollen)
-  - Klarer Verantwortung (Was TUT er? Was NICHT?)
-  - Input/Output-Beschreibung und `tools:`
-  - Selbstprüf-Checkliste statt grill-me (nur der Orchestrator grillt)
+### 3. Agent Composition
+- The consultant automatically **diagnoses** which agents are needed
+- **Not orchestrating itself** – only advising
+- Every generated agent is a subagent under `.claude/agents/` with:
+  - Specialized persona
+  - `model:` in the frontmatter (`opus` for judgment roles, `haiku` for execution roles)
+  - Clear responsibility (What does it DO? What NOT?)
+  - Input/output description and `tools:`
+  - Self-check checklist instead of grill-me (only the orchestrator grills)
 
-### 4. Technische Architektur
-- **Kommunikation:** Delegation über das Agent-Tool (Auftrag als Prompt, Report zurück)
-- **Kein Internet:** Alles läuft lokal auf Benutzer-System
-- **Speicherort:** Standard `agents/<paket-name>/` in diesem Repo; abweichender Pfad auf Ansage
-- **Ausführung:** `cd agents/consulting-agent && claude`
-- **Modell-Split:** Opus für Phase 1–3 und 5, Haiku für Phase 4; Wechsel per `/model`, vom
-  Consultant eingefordert
-- **Code-Umgang:** Test-Driven Development (Rot → Grün)
+### 4. Technical Architecture
+- **Communication:** Delegation via the Agent tool (assignment as prompt, report back)
+- **No internet:** Everything runs locally on the user's system
+- **Storage location:** Default `agents/<package-name>/` in this repo; different path on request
+- **Execution:** `cd agents/consulting-agent && claude`
+- **Model split:** Opus for Phases 1–3 and 5, Haiku for Phase 4; switch via `/model`,
+  required by the consultant
+- **Handling code:** Test-Driven Development (Red → Green)
 
-### 5. Output-Format
-Der Consultant generiert:
+### 5. Output Format
+The consultant generates:
 
 ```
-agents/<paket-name>/
-├── CLAUDE.md                     # Was das System ist, wie man es startet
-├── README.md                     # Zweck, Picken, Abhängigkeiten
+agents/<package-name>/
+├── CLAUDE.md                     # What the system is, how to start it
+├── README.md                     # Purpose, picking, dependencies
 ├── .claude/
 │   ├── agents/
-│   │   ├── orchestrator.md       # model: opus  (entfällt beim Einzelagenten)
-│   │   └── <spezialist>.md       # model: haiku
+│   │   ├── orchestrator.md       # model: opus  (omitted for a single agent)
+│   │   └── <specialist>.md       # model: haiku
 │   └── skills/
-│       └── grill-me/SKILL.md     # mitgeliefert
+│       └── grill-me/SKILL.md     # bundled
 └── docs/
-    ├── ORCHESTRATION-DESIGN.md   # nur beim Orchester
-    └── BUILD-SPEC.md             # die abgearbeitete Bauanleitung
+    ├── ORCHESTRATION-DESIGN.md   # only for an orchestra
+    └── BUILD-SPEC.md             # the completed build guide
 ```
 
-**PLUS:** Eine umfassende Dokumentation, die erklärt:
-- Welche Agenten-Rollen es gibt
-- Was jeder Agent tut
-- Wie sie kommunizieren
-- Welcher Flow (sequenziell? Feedback-Loops? Parallel?)
+**PLUS:** Comprehensive documentation explaining:
+- Which agent roles exist
+- What each agent does
+- How they communicate
+- Which flow (sequential? feedback loops? parallel?)
 
 ---
 
-## 🔧 Implementierte Lösung
+## 🔧 Implemented Solution
 
-✅ **consultant.md** fertiggestellt mit:
-- Begrüßung & Berater-Persona
-- 3-phasiger Workflow (Aufnahme → Diagnosis → Generierung)
-- Intensive grill-me Fragen (6 kritische Kategorien)
-- Templates für generierte Agents
-- Struktur für `orchestration-config.json`
-- Dokumentations-Vorlage
-- Hinweise auf spezialisierte grill-me Skills pro Agent
-
----
-
-## 📌 Wichtige Design-Entscheidungen
-
-1. **Grill-me ist AUTOMATISCH** – der Consultant fragt nie "soll ich grill-me nutzen?"
-2. **Keine Sub-Orchestrierung** – der Consultant orchestriert nicht selbst, nur die generierten Agenten
-3. **Delegation statt Dateiprotokoll** – kein `orchestration/`-Verzeichnis, keine `orchestration-config.json`
-4. **Selbstenthaltene Pakete** – `grill-me` wird ins Paket kopiert, Picken = ein Kopiervorgang
-5. **Ein Agent = ein Modell** – pro Agent im Gespräch bestimmt, mit Empfehlung des Consultants
-6. **Opus plant, Haiku baut, Opus nimmt ab** – Übergabe über `docs/BUILD-SPEC.md`
-7. **Nur der Orchestrator grillt** – Spezialisten prüfen sich selbst
-8. **Lokal only** – keine APIs, kein Internet
-9. **TDD für Code** – Rot → Grün
+✅ **consultant.md** completed with:
+- Greeting & consultant persona
+- 3-phase workflow (intake → diagnosis → generation)
+- Intensive grill-me questions (6 critical categories)
+- Templates for generated agents
+- Structure for `orchestration-config.json`
+- Documentation template
+- Notes on specialized grill-me skills per agent
 
 ---
 
-## 🔄 Rework-Richtlinien
+## 📌 Important Design Decisions
 
-**WICHTIG:** Bei jedem Rework oder Verbesserung:
+1. **Grill-me is AUTOMATIC** – the consultant never asks "should I use grill-me?"
+2. **No sub-orchestration** – the consultant does not orchestrate itself, only the generated agents do
+3. **Delegation instead of file protocol** – no `orchestration/` directory, no `orchestration-config.json`
+4. **Self-contained packages** – `grill-me` is copied into the package, picking = one copy operation
+5. **One agent = one model** – determined per agent in conversation, with the consultant's recommendation
+6. **Opus plans, Haiku builds, Opus signs off** – handoff via `docs/BUILD-SPEC.md`
+7. **Only the orchestrator grills** – specialists check themselves
+8. **Local only** – no APIs, no internet
+9. **TDD for code** – Red → Green
 
-1. **GRILLE MIT grill-me** – Die neuen Anforderungen intensiv durchfragen
-2. **Follow-up-Fragen stellen** – Was hat sich geändert? Warum?
-3. **Auswirkungen prüfen** – Wie beeinflusst die Änderung die restliche Architektur?
-4. **Validieren** – Sind wir wirklich fertig? Fehlt noch was?
+---
 
-**Beispiel-Rework-Workflow:**
+## 🔄 Rework Guidelines
+
+**IMPORTANT:** For every rework or improvement:
+
+1. **GRILL WITH grill-me** – question the new requirements intensively
+2. **Ask follow-up questions** – What changed? Why?
+3. **Check impact** – How does the change affect the rest of the architecture?
+4. **Validate** – Are we really done? Is anything missing?
+
+**Example rework workflow:**
 ```
-1. User: "Ich möchte X ändern"
-2. Claude (grill-me): "Warum ändern wir das? Was ist das neue Problem?"
-3. Claude: Follow-up-Fragen zur Auswirkung
-4. Claude: Anpassung von consultant.md
-5. Claude: Erklärung der Änderungen hier in CONTEXT-SUMMARY.md
+1. User: "I want to change X"
+2. Claude (grill-me): "Why are we changing this? What's the new problem?"
+3. Claude: Follow-up questions on impact
+4. Claude: Adjustment of consultant.md
+5. Claude: Explanation of the changes here in CONTEXT-SUMMARY.md
 ```
 
 ---
 
-## ✅ Offene Punkte
+## ✅ Open Items
 
-- [ ] Consultant-Agent testen (erste Session durchlaufen)
-- [ ] Templates für spezialisierte Agents erstellen (optional)
-- [ ] Beispiel-Projekte durcharbeiten (optional)
-- [ ] Real-World-Einsatz dokumentieren
-- [ ] Erstes Paket erzeugen und den Pick-Vorgang in ein fremdes Repo real durchspielen
-
----
-
-## 📞 Quick-Links
-
-- **Consultant-Agent:** `../CLAUDE.md` (ursprünglich als `consultant.md` entworfen)
-- **Nächster Schritt:** `cd agents/consulting-agent && claude`
-- **Dokumentation:** Diese Datei sowie `../README.md`
+- [ ] Test the consultant agent (run through a first session)
+- [ ] Create templates for specialized agents (optional)
+- [ ] Work through example projects (optional)
+- [ ] Document real-world usage
+- [ ] Generate the first package and actually run through the pick process into a foreign repo
 
 ---
 
-**Status:** Konsultant ist ready zum Einsatz. Jederzeit kann neu gegrillet werden bei Änderungen.
+## 📞 Quick Links
+
+- **Consultant Agent:** `../CLAUDE.md` (originally designed as `consultant.md`)
+- **Next Step:** `cd agents/consulting-agent && claude`
+- **Documentation:** This file and `../README.md`
+
+---
+
+**Status:** Consultant is ready for use. Can be re-grilled at any time for changes.
