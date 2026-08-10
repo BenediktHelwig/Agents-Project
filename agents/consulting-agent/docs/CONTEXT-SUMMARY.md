@@ -49,8 +49,14 @@
 - **No internet:** Everything runs locally on the user's system
 - **Storage location:** Default `agents/<package-name>/` in this repo; different path on request
 - **Execution:** `cd agents/consulting-agent && claude`
-- **Model split:** Opus for Phases 1–3 and 5, Haiku for Phase 4; switch via `/model`,
-  required by the consultant
+- **Model split:** Opus for Phases 1–3 and 5, Haiku for Phase 4. The switch happens
+  automatically — `settings.json` sets Opus at startup, and Phase 4 is delegated to the
+  `package-writer` subagent, which carries `model: haiku` in its frontmatter. The consultant
+  never asks the client to run `/model`.
+- **Permission modes:** Plan mode covers Phases 0–2. Phase 3 is the first write, so at the end
+  of Phase 2 the consultant requires the client to switch to Manual mode via Shift+Tab and
+  waits for confirmation — it never switches the mode itself. After writing the build guide it
+  checks back whether that write actually had to be confirmed.
 - **Handling code:** Test-Driven Development (Red → Green)
 
 ### 5. Output Format

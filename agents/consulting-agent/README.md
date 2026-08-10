@@ -34,10 +34,11 @@ claude
 ```
 
 The agent begins requirements gathering on its own. Thanks to
-`.claude/settings.json`, the session automatically starts on Opus in Plan mode. During the
-run, the agent prompts you to switch to Normal mode (Shift+Tab) before Phase 4. The model
-switch to Haiku (Phase 4) and back to Opus (Phase 5) runs through the `package-writer`
-subagent — no manual switching needed. By default, it places the package under
+`.claude/settings.json`, the session automatically starts on Opus in Plan mode. Phases 1–2
+stay there; at the end of Phase 2 the agent asks you to switch to **Manual mode** with
+Shift+Tab and waits until you confirm, so every file that follows costs you one confirmation.
+The model switch to Haiku (Phase 4) and back to Opus (Phase 5) runs through the
+`package-writer` subagent — no manual switching needed. By default, it places the package under
 `agents/<package-name>/` of this repo; you name a different target path during the conversation.
 
 ## Dependencies
@@ -64,8 +65,8 @@ core mechanic.
 - **grill-me runs automatically** — the agent never asks whether it may ask questions.
 - **Opus plans, Haiku builds, Opus signs off** — the model switch happens automatically via
   `.claude/settings.json` (startup check) and via the `package-writer` subagent (Phase 4). The
-  consultant never requires a model switch; it only requires permission modes
-  (Plan mode, Normal mode).
+  consultant never requires a model switch; it only handles permission modes (Plan mode for
+  Phases 1–2, manual edit approval from Phase 3 on).
 - **Generated roles are real subagents** under `.claude/agents/` with `model:` in the frontmatter.
   The orchestrator delegates via the Agent tool; there is no file-based JSON protocol and
   no `orchestration-config.json`.
