@@ -1,8 +1,6 @@
 # --- Claude Code / Agent-Laufzeit ---
 .claude/settings.local.json
 .claude/local/
-orchestration/inputs/
-orchestration/outputs/
 
 # --- Generierte Agent-Outputs (Arbeitsverzeichnisse, nicht versionieren) ---
 out/

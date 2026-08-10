@@ -7,16 +7,24 @@ und generiert ein fertiges Multi-Agent-System.
 ## Was er produziert
 
 ```
-dein-projekt/
-├── agents/
-│   ├── orchestrator.md          # Teamlead: koordiniert, vergibt Tasks
-│   └── <spezialisten>.md        # z.B. dev-agent.md, test-agent.md, review-agent.md
-├── orchestration-config.json    # Architektur: Rollen, Kommunikation, Reihenfolge
-└── ORCHESTRATION-DESIGN.md      # Dokumentation: Überblick, Rollen, Workflows
+agents/<paket-name>/
+├── CLAUDE.md                     # Was das System ist, wie man es startet
+├── README.md                     # Zweck, Picken, Abhängigkeiten
+├── .claude/
+│   ├── agents/
+│   │   ├── orchestrator.md       # model: opus  (entfällt beim Einzelagenten)
+│   │   └── <spezialist>.md       # model: haiku
+│   └── skills/
+│       └── grill-me/SKILL.md     # mitgeliefert
+└── docs/
+    ├── ORCHESTRATION-DESIGN.md   # nur beim Orchester
+    └── BUILD-SPEC.md             # die abgearbeitete Bauanleitung
 ```
 
-Der Consultant **orchestriert nicht selbst** — er berät und generiert. Die Ausführung
-übernehmen die erzeugten Agenten.
+Das Paket ist selbstenthalten: Ein Kopiervorgang genügt, um es in ein anderes Repo zu übernehmen.
+
+Der Consultant **orchestriert nicht selbst** — er berät und generiert. Die Ausführung übernehmen
+die erzeugten Agenten.
 
 ## Starten
 
@@ -25,8 +33,10 @@ cd agents/consulting-agent
 claude
 ```
 
-Der Agent beginnt von sich aus mit der Anforderungsaufnahme. Den Zielpfad für die generierten
-Dateien gibst du ihm im Gespräch an.
+Der Agent beginnt von sich aus mit der Anforderungsaufnahme. Standardmäßig legt er das Paket
+unter `agents/<paket-name>/` dieses Repos ab; einen abweichenden Zielpfad nennst du ihm im
+Gespräch. Während des Laufs fordert er dich auf, mit `/model haiku` auf das schreibende Modell
+und danach mit `/model opus` zur Abnahme zurückzuwechseln.
 
 ## Abhängigkeiten
 
@@ -48,11 +58,14 @@ Kernmechanik.
 ## Design-Entscheidungen
 
 - **grill-me läuft automatisch** — der Agent fragt nie, ob er nachfragen darf.
-- **Dateibasierte Kommunikation** zwischen den generierten Agenten (JSON im Ordner
-  `orchestration/`).
+- **Opus plant, Haiku baut, Opus nimmt ab** — der Consultant fordert die Modellwechsel selbst
+  ein; die Übergabe läuft über eine vollständige `docs/BUILD-SPEC.md`.
+- **Generierte Rollen sind echte Subagents** unter `.claude/agents/` mit `model:` im Frontmatter.
+  Der Orchestrator delegiert über das Agent-Tool; es gibt kein dateibasiertes JSON-Protokoll und
+  keine `orchestration-config.json`.
+- **Ein Agent = ein festes Modell** — das Modell wird pro Agent im Gespräch bestimmt, jeweils mit
+  Empfehlung des Consultants.
+- **Nur der Orchestrator grillt** — Spezialisten haben als Subagents keinen Gesprächspartner und
+  bekommen stattdessen eine Selbstprüf-Checkliste.
+- **Das Paket bringt `grill-me` mit** — herauspicken heißt: einen Ordner kopieren.
 - **Lokal only** — keine API-Calls, kein Internet.
-- **Jeder generierte Agent bekommt einen eigenen grill-me-Fokus** — der Test-Agent grillt
-  Code-Quality und Coverage, der Dev-Agent Architektur und Edge-Cases, der Reviewer
-  Standards und Security.
-
-Details und Rework-Richtlinien: [`docs/CONTEXT-SUMMARY.md`](docs/CONTEXT-SUMMARY.md).

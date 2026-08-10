@@ -1,7 +1,7 @@
 # Consulting-Agent Projekt: Kontext & Anforderungen
 
 **Erstellt:** 2026-05-24  
-**Status:** ✅ consultant.md fertiggestellt  
+**Status:** ✅ Paket-Format und Modell-Split festgelegt  
 **Nächste Phase:** Implementierung & Testing
 
 ---
@@ -37,31 +37,38 @@
 ### 3. Agent-Komposition
 - Der Consultant **diagnostiziert** automatisch, welche Agenten nötig sind
 - **Nicht orchestrierend selbst** – nur beratend
-- Jeder generierte Agent hat:
-  - Spezialisierte Persona
-  - Klare Verantwortung (Was TUT er? Was NICHT?)
-  - Input/Output Format
-  - Kommunikations-Pattern
-  - Eigener spezialisierter grill-me Skill (z.B. Test-Agent grillt Code-Quality)
+- Jeder generierte Agent ist ein Subagent unter `.claude/agents/` mit:
+  - Spezialisierter Persona
+  - `model:` im Frontmatter (`opus` für urteilende, `haiku` für ausführende Rollen)
+  - Klarer Verantwortung (Was TUT er? Was NICHT?)
+  - Input/Output-Beschreibung und `tools:`
+  - Selbstprüf-Checkliste statt grill-me (nur der Orchestrator grillt)
 
 ### 4. Technische Architektur
-- **Kommunikation:** Dateibasiert (JSON, lokal)
+- **Kommunikation:** Delegation über das Agent-Tool (Auftrag als Prompt, Report zurück)
 - **Kein Internet:** Alles läuft lokal auf Benutzer-System
-- **Speicherort:** User gibt Pfad an → Consultant speichert dort
-- **Ausführung:** `claude run consultant.md`
+- **Speicherort:** Standard `agents/<paket-name>/` in diesem Repo; abweichender Pfad auf Ansage
+- **Ausführung:** `cd agents/consulting-agent && claude`
+- **Modell-Split:** Opus für Phase 1–3 und 5, Haiku für Phase 4; Wechsel per `/model`, vom
+  Consultant eingefordert
 - **Code-Umgang:** Test-Driven Development (Rot → Grün)
 
 ### 5. Output-Format
 Der Consultant generiert:
 
 ```
-user-project/
-├── agents/
-│   ├── orchestrator.md          # Teamlead
-│   ├── [specialist-agents].md   # Dev, Test, Review, Doc, etc.
-│   └── ...
-├── orchestration-config.json    # Architektur & Flow
-└── ORCHESTRATION-DESIGN.md      # Dokumentation
+agents/<paket-name>/
+├── CLAUDE.md                     # Was das System ist, wie man es startet
+├── README.md                     # Zweck, Picken, Abhängigkeiten
+├── .claude/
+│   ├── agents/
+│   │   ├── orchestrator.md       # model: opus  (entfällt beim Einzelagenten)
+│   │   └── <spezialist>.md       # model: haiku
+│   └── skills/
+│       └── grill-me/SKILL.md     # mitgeliefert
+└── docs/
+    ├── ORCHESTRATION-DESIGN.md   # nur beim Orchester
+    └── BUILD-SPEC.md             # die abgearbeitete Bauanleitung
 ```
 
 **PLUS:** Eine umfassende Dokumentation, die erklärt:
@@ -87,12 +94,15 @@ user-project/
 
 ## 📌 Wichtige Design-Entscheidungen
 
-1. **Grill-me ist AUTOMATISCH** – Der Consultant fragt nie "soll ich grill-me nutzen?"
-2. **Keine Sub-Orchestrierung** – Der Consultant orchestriert nicht selbst, nur die generierten Agents
-3. **Dateibasiert** – Alle Agent-Kommunikation über Dateien (JSON in `orchestration/` Folder)
-4. **Lokal only** – Keine APIs, kein Internet, alles auf Benutzer-Rechner
-5. **Spezialisierte grill-me** – Jeder Agent hat seinen eigenen grill-me Fokus
-6. **TDD für Code** – Test-Driven Development (Rot → Grün) wenn Code involved
+1. **Grill-me ist AUTOMATISCH** – der Consultant fragt nie "soll ich grill-me nutzen?"
+2. **Keine Sub-Orchestrierung** – der Consultant orchestriert nicht selbst, nur die generierten Agenten
+3. **Delegation statt Dateiprotokoll** – kein `orchestration/`-Verzeichnis, keine `orchestration-config.json`
+4. **Selbstenthaltene Pakete** – `grill-me` wird ins Paket kopiert, Picken = ein Kopiervorgang
+5. **Ein Agent = ein Modell** – pro Agent im Gespräch bestimmt, mit Empfehlung des Consultants
+6. **Opus plant, Haiku baut, Opus nimmt ab** – Übergabe über `docs/BUILD-SPEC.md`
+7. **Nur der Orchestrator grillt** – Spezialisten prüfen sich selbst
+8. **Lokal only** – keine APIs, kein Internet
+9. **TDD für Code** – Rot → Grün
 
 ---
 
@@ -122,6 +132,7 @@ user-project/
 - [ ] Templates für spezialisierte Agents erstellen (optional)
 - [ ] Beispiel-Projekte durcharbeiten (optional)
 - [ ] Real-World-Einsatz dokumentieren
+- [ ] Erstes Paket erzeugen und den Pick-Vorgang in ein fremdes Repo real durchspielen
 
 ---
 

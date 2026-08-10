@@ -17,6 +17,8 @@ das Repo als Ganzes — sie ist **keine** Agent-Persona. Die Persona eines Agent
 5. **Geteilte Skills liegen im Root.** Alles unter `.claude/skills/` steht allen Agenten
    dieses Repos zur Verfügung. Ein Agent, der einen Skill braucht, nennt ihn in seinem
    README unter *Abhängigkeiten* — sonst geht er beim Herauspicken verloren.
+   **Ausnahme:** Vom `consulting-agent` erzeugte Pakete bringen ihre Skills als Kopie in
+   `agents/<paket-name>/.claude/skills/` mit, damit ein einziger Kopiervorgang zum Picken reicht.
 
 ## Anforderungen an einen neuen Agenten
 
@@ -32,10 +34,21 @@ Danach: Eintrag in der Agenten-Tabelle in [`README.md`](README.md) ergänzen.
 
 ## Umgang mit generierten Agenten
 
-Der [`consulting-agent`](agents/consulting-agent/) erzeugt komplette Agenten-Systeme
-(`agents/`, `orchestration-config.json`, `ORCHESTRATION-DESIGN.md`). Wird so ein System hier
-abgelegt, kommt es als **ein** Ordner unter `agents/` — mit seinem Orchestrator und seinen
-Spezialisten darin, nicht flach neben die anderen Agenten verteilt.
+Der [`consulting-agent`](agents/consulting-agent/) erzeugt fertige Pakete — einen einzelnen
+Agenten oder ein ganzes Orchester. Ein solches Paket liegt als **ein** Ordner unter `agents/`
+und hat dieselbe Form wie ein handgeschriebener Agent, ergänzt um seine Rollen:
+
+```
+agents/<paket-name>/
+├── CLAUDE.md
+├── README.md
+├── .claude/
+│   ├── agents/            # die Rollen als Subagents, mit model: im Frontmatter
+│   └── skills/            # mitgelieferte Skills, damit ein Kopiervorgang genügt
+└── docs/
+```
+
+Die Rollen kommunizieren über Delegation (Agent-Tool), nicht über Dateien.
 
 ## Arbeitsweise
 
