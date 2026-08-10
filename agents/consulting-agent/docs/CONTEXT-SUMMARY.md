@@ -11,7 +11,7 @@
 **Goal:** Create a highly specialized **Agent Orchestration Consultant** that:
 - Automatically applies the **grill-me skill** (intensive questioning)
 - Designs specialized agent systems for any domain
-- Generates finished `agent.md` files and configurations
+- Generates finished subagent definitions under `.claude/agents/` plus the package around them
 - Helps the user build complex multi-agent systems
 
 ---
@@ -22,7 +22,7 @@
 - **Persona:** 10+ years of experience in agent orchestration
 - **Behavior:** Uses grill-me automatically (NO explicit request needed)
 - **Tone:** Professional consultant, intensive, in-depth
-- **Output:** Generates finished agent files + configuration + documentation
+- **Output:** A complete, pickable package — agent definitions, documentation, bundled skill
 
 ### 2. Grill-me Integration
 - The consultant asks very intensively about:
@@ -87,14 +87,18 @@ agents/<package-name>/
 
 ## 🔧 Implemented Solution
 
-✅ **consultant.md** completed with:
+✅ **`../CLAUDE.md`** — the agent definition, containing:
 - Greeting & consultant persona
-- 3-phase workflow (intake → diagnosis → generation)
-- Intensive grill-me questions (6 critical categories)
-- Templates for generated agents
-- Structure for `orchestration-config.json`
-- Documentation template
-- Notes on specialized grill-me skills per agent
+- Startup check (Phase 0) plus the five phases: grill-me → composition → build spec →
+  file creation → sign-off
+- Intensive grill-me questions (7 categories, including model choice per role)
+- Templates for every file of the generated package
+- Which model and which permission mode each phase belongs to
+
+✅ **`../.claude/agents/package-writer.md`** — the Haiku subagent that turns `BUILD-SPEC.md`
+into the actual files in Phase 4
+
+✅ **`../.claude/settings.json`** — starts the session on Opus in Plan mode
 
 ---
 
@@ -126,7 +130,7 @@ agents/<package-name>/
 1. User: "I want to change X"
 2. Claude (grill-me): "Why are we changing this? What's the new problem?"
 3. Claude: Follow-up questions on impact
-4. Claude: Adjustment of consultant.md
+4. Claude: Adjustment of ../CLAUDE.md
 5. Claude: Explanation of the changes here in CONTEXT-SUMMARY.md
 ```
 
