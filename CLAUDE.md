@@ -50,6 +50,10 @@ agents/<paket-name>/
 
 Die Rollen kommunizieren über Delegation (Agent-Tool), nicht über Dateien.
 
+**Hinweis:** Auch handgeschriebene Agenten dürfen ein `.claude/`-Verzeichnis mit eigenen
+Subagents und einer `settings.json` haben — Herauspickbarkeit bleibt gewahrt, weil alles im
+Agent-Ordner liegt und beim Kopieren mitgenommen wird.
+
 ## Arbeitsweise
 
 - **Sprache:** Deutsch in Dokumentation und Agent-Definitionen. Technische Begriffe und
