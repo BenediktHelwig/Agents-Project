@@ -57,7 +57,8 @@ designed.
   it is locked: that subagent has no write tools at all.
 - **You use `Bash` for git and for reading only** — `log`, `status`, `diff`, `branch`, `add`,
   `commit`. Never to write a file around your own restriction.
-- **You never push.** Remote access needs a passphrase you do not have.
+- **You never push to a main branch and never force-push.** Pushing your own feature branch is
+  part of the job — that is what opens the pull request. Merging never is.
 - **You never impose conventions.** If the project uses `snake_case`, so does everything you
   produce, whatever your own preference.
 - **You never ask for a model switch.** Model changes happen through delegation.
@@ -142,12 +143,13 @@ You cannot change the permission mode, so you ask. Once.
 Clarification, profiling and planning run in Plan Mode. Before the first delegation that writes
 anything, say **verbatim**:
 
-> The plan is settled. Writing it down and building it requires write access — please press
-> **Shift+Tab** to leave Plan Mode (you will confirm each write individually) and reply "go".
-> I will handle the model switches myself.
+> The plan is settled. Please press **Shift+Tab** to switch to **auto mode** — from here on files
+> are written without stopping at each one, and you review the result as a whole in the pull
+> request at the end. Reply "go" when you are there.
 
 Then wait. **Never ask to switch back.** The `review-agent` only reads and works in any mode, and
-if a review finds a defect you must be able to re-delegate immediately.
+if a review finds a defect you must be able to re-delegate immediately. The model switches you
+handle yourself, through delegation.
 
 ## Per feature
 
@@ -178,7 +180,7 @@ The plan is written to `.agents/plans/<feature>.md` and always ends with this ch
 - [ ] Implementation approved (review-agent)
 - [ ] Documentation updated (doc-agent)
 - [ ] Documentation approved (review-agent)
-- [ ] Pull request message written
+- [ ] Pull request opened (or message written, if gh is unavailable)
 ```
 
 This checklist is the resume point. Each specialist ticks its own line when it reports success,
@@ -204,21 +206,29 @@ Delegate to `doc-agent`. Then delegate to `review-agent` with `mode: docs`.
 
 ### 6. Close
 
-When every line of the checklist is ticked: have the `plan-writer` write the pull request message
-to `.agents/pull-request.md`, then delete the plan file. Report to the user what was built and
-point at the pull request message.
+When every line of the checklist is ticked: write the pull request text, have the `plan-writer` put
+it on disk, open the pull request as described below, then delete the plan file. Report to the user
+what was built and give them the pull request URL.
 
-## Git
+## Git and the pull request
 
 1. **A branch before the first change.** Never work on a main branch. Name it after the scheme in
    the profile.
 2. **A commit after each phase** — tests, implementation, documentation. This keeps the TDD
    sequence visible in the history: a red test commit, then a green implementation commit.
-3. **Never push.** Remote access needs a passphrase no agent has.
-4. **A pull request message** at `.agents/pull-request.md`. You write the text, the `plan-writer`
-   puts it on disk. The user pastes it into the pull request and reviews.
-5. **Review remarks come back as an additional commit** on the same branch. Never rewrite history
-   that the user has already looked at.
+3. **At the end, open a pull request** — but check first:
+   - `gh auth status` succeeds, and
+   - `git remote get-url origin` names a GitHub host.
+
+   **Both true:** push the branch and run `gh pr create` with a title and `--body-file` pointing at
+   `.agents/pull-request.md`. Report the URL.
+
+   **Either false:** leave branch and commits local, keep the message at `.agents/pull-request.md`
+   and tell the user it is ready to paste. Never fail a run over a missing tool — the work is done
+   either way.
+4. **Never push to a main branch, never force-push**, and never merge. The merge is the user's.
+5. **Review remarks come back as an additional commit** on the same branch, which updates the pull
+   request by itself. Never rewrite history the user has already looked at.
 
 **You run every git command yourself.** The specialists write files and report; you record the
 result. Git stays with one role, so nobody commits half of somebody else's work.
@@ -253,8 +263,9 @@ the assignment instead of repeating it louder.
 - [ ] Nothing outside the plan was changed
 - [ ] The code follows the conventions in the profile, not your own preferences
 - [ ] Documentation and code tell the same story
-- [ ] A branch exists, the phases are separate commits, nothing was pushed
-- [ ] The pull request message is written and the plan file is deleted
+- [ ] A branch exists, the phases are separate commits, nothing was pushed to a main branch
+- [ ] The pull request is open — or its message is on disk, if `gh` was unavailable
+- [ ] The plan file is deleted
 - [ ] Everything is in English
 ````
 
@@ -299,7 +310,8 @@ claude
 ```
 
 `.claude/settings.json` puts the session on Opus in Plan Mode. You will be asked once per session
-to leave Plan Mode before anything is written — the model switches happen on their own.
+to switch to auto mode before anything is written; after that the work runs through in one go and
+you review it as a whole in the pull request. The model switches happen on their own.
 
 ## Using it in another repository
 
@@ -329,9 +341,14 @@ Beyond that it writes exactly what you asked for: tests, implementation and docu
 
 ## Git
 
-It creates a branch before the first change and commits after each phase, so the TDD sequence
-stays visible in the history. **It never pushes.** You get a pull request message to paste, you
-review, and any remarks come back as an additional commit on the same branch.
+It creates a branch before the first change and commits after each phase, so the TDD sequence stays
+visible in the history. At the end it opens a pull request — if `gh` is installed, authenticated,
+and the project is on GitHub. Otherwise branch and commits stay local and you get the message at
+`.agents/pull-request.md` to paste yourself.
+
+You review the whole change as one diff and merge it. Remarks come back as an additional commit on
+the same branch, so the pull request updates itself. **It never merges, never force-pushes, and
+never pushes to a main branch.**
 
 ## Dependencies
 
@@ -880,9 +897,16 @@ instead would tell a resuming session nothing.
 ## Git
 
 Branch before the first change, a commit per phase so the TDD sequence stays legible in the
-history, and **never a push** — remote access needs a passphrase no agent has. The pull request
-message is written to disk for the user to paste; review remarks return as an additional commit on
-the same branch. Only the *format* — branch naming, commit style — comes from the profile.
+history, and a pull request at the end. That pull request is the review point: the user reads the
+whole change as one diff rather than confirming one write at a time, which is also why the mode
+gate leads into auto mode rather than into per-write confirmation.
+
+Opening it depends on the environment, so the orchestrator checks instead of assuming: `gh`
+authenticated and a GitHub remote means push and `gh pr create`; anything else means branch and
+commits stay local and the message goes to `.agents/pull-request.md` for the user to paste. A
+missing tool never fails a run — the work is done either way. Pushing a main branch, force-pushing
+and merging stay out of bounds. Only the *format* — branch naming, commit style — comes from the
+profile.
 
 ## Deliberately Not Included
 
