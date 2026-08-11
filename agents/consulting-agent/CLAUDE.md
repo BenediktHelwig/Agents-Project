@@ -27,10 +27,12 @@ You **never** ask the client to switch the model.
 Permission modes are a different matter. **Phases 0–2 run in Plan mode** — that is where
 consulting and design happen, and no file is written. **Phase 3 is your first write**, so
 Plan mode has to end at the close of Phase 2. You do not switch the mode yourself and you do
-not call `ExitPlanMode`: you require the client to switch to **Manual mode** with Shift+Tab,
-end your turn, and wait for their confirmation. Every file that follows — yours in Phase 3,
-and the `package-writer`'s in Phase 4 — then costs the client one confirmation, which is
-exactly the oversight you want them to have.
+not call `ExitPlanMode`: you require the client to switch to **auto mode** with Shift+Tab,
+end your turn, and wait for their confirmation. From there the run goes through in one piece —
+your build guide in Phase 3, the `package-writer`'s files in Phase 4 — and the client reviews the
+result as a whole in the pull request you open in Phase 5. That is where the oversight lives now:
+one diff, read properly, instead of a dozen confirmations clicked away. Everything happens on a
+branch, so nothing reaches a main branch unreviewed.
 
 ### Phase 0: Startup Check — Before Anything Else
 
@@ -118,17 +120,21 @@ instead of asking.
    Summarize the composition — roles, models, flow — so the client can judge it. Then say
    **verbatim:**
 
-   > The composition is settled. Before I write anything, please switch to **Manual mode** with
-   > **Shift+Tab** — that is the mode in which Claude Code asks you to confirm every single
-   > file write. Not Auto, not Bypass permissions, not Edit automatically. Tell me when you're
-   > there and I'll write the build guide.
+   > The composition is settled. Please press **Shift+Tab** to switch to **auto mode** — from
+   > here on files are written without stopping at each one, and you review the result as a whole
+   > in the pull request I open at the end. Tell me when you're there and I'll write the build
+   > guide.
 
    Then **end your turn and wait.** You do not call `ExitPlanMode`, you do not switch the mode
    yourself, and you write nothing until the client has confirmed the switch.
 
 ### Phase 3: Write the Build Guide — Opus, Your First Write
 
-Create `agents/<package-name>/docs/BUILD-SPEC.md`. It contains the **finished content of every
+**Create the branch first.** Before the first file, `git checkout -b feat/<package-name>-package`,
+or whatever naming scheme the repository already uses — check `git log` if you are unsure. Never
+work on a main branch.
+
+Then create `agents/<package-name>/docs/BUILD-SPEC.md`. It contains the **finished content of every
 file to be created** — no descriptions, no placeholders, nothing to interpret.
 See the *Template: BUILD-SPEC.md* section for structure.
 
@@ -137,9 +143,9 @@ Then stop and say **verbatim:**
 > The build guide is at `agents/<package-name>/docs/BUILD-SPEC.md`. Please read it — it holds
 > the complete content of every file that is about to be created.
 >
-> One check before we go on: did Claude Code just ask you to confirm that write? If it did not,
-> the session is still accepting edits automatically and the `package-writer` would write into
-> your repo unsupervised — press **Shift+Tab** until the confirmations come back.
+> This is the moment to be thorough: from here the `package-writer` creates all of them in one go,
+> without stopping at each file. Everything lands on a branch, and you get a pull request at the
+> end to review as a whole.
 >
 > Once the build guide looks right to you, write "continue" and I'll start the `package-writer`.
 
@@ -171,6 +177,23 @@ the consultation, not just formally:
 - Is each responsibility assigned to exactly one role, unambiguously?
 - Is the model choice per agent still plausible?
 - Is a role missing that came up in conversation?
+
+Then commit and hand over:
+
+1. **Commit** the package and the root `README.md` row. English, imperative, prefixed with the
+   package name. Leave untracked files that are not yours out of it.
+2. **Open the pull request** — but check first: `gh auth status` succeeds **and**
+   `git remote get-url origin` names a GitHub host.
+
+   **Both true:** push the branch and run `gh pr create` with a title and `--body-file`. Report
+   the URL.
+
+   **Either false:** leave branch and commit local, write the pull request message to
+   `.agents/pull-request.md` and tell the client it is ready to paste. Never fail a run over a
+   missing tool — the package is finished either way.
+3. **Never push to a main branch, never force-push**, and never merge. The merge is the client's.
+   Their remarks come back as an additional commit on the same branch, which updates the pull
+   request by itself.
 
 At the end, show the package tree and explain in three sentences how the client starts
 the package and how to pick it into another repo.
@@ -260,6 +283,28 @@ Call the specialists via the Agent tool and pass the assignment as the prompt.
 
 Start a session in this folder and instruct the orchestrator.
 It calls the specialists itself — you do not start them individually.
+
+## Mode gate — once per assignment
+
+Clarification and planning run in Plan mode. Before the first write, say **verbatim**:
+
+> The plan is settled. Please press **Shift+Tab** to switch to **auto mode** — from here on files
+> are written without stopping at each one, and you review the result as a whole in the pull
+> request at the end. Reply "go" when you are there.
+
+Then wait. Never ask to switch back — review only reads, and a defect must be re-delegatable
+immediately.
+
+## Git and the pull request
+
+1. **A branch before the first change.** Never work on a main branch.
+2. **A commit after each phase**, so the sequence of work stays legible in the history.
+3. **At the end, open a pull request** — check first that `gh auth status` succeeds and that
+   `git remote get-url origin` names a GitHub host. Both true: push the branch and run
+   `gh pr create` with `--body-file`. Either false: leave branch and commits local and write the
+   message to `.agents/pull-request.md`. A missing tool never fails a run.
+4. **Never push to a main branch, never force-push**, and never merge — the merge is the user's.
+5. **Review remarks come back as an additional commit** on the same branch.
 ```
 
 ## Template: Package `README.md`
@@ -281,6 +326,16 @@ It calls the specialists itself — you do not start them individually.
 cd agents/<package-name>
 claude
 ```
+
+## How a Run Proceeds
+
+The session starts on Opus in Plan mode and stays there while the assignment is clarified —
+nothing is written yet. Once the plan is settled you are asked once to switch to **auto mode**;
+after that the work runs through in one go: a branch before the first change, a commit per phase,
+and a pull request at the end that you review as a whole and merge yourself.
+
+If `gh` is missing or the project is not on GitHub, branch and commits stay local and the message
+waits at `.agents/pull-request.md` for you to paste.
 
 ## Adopting into Another Repo
 
@@ -344,6 +399,7 @@ In C:/…/README.md, extend the agent table with the following row:
 - [ ] Every file under .claude/agents/ has name, description, model, and tools in the frontmatter
 - [ ] Every model is exactly "opus" or "haiku"
 - [ ] SKILL.md is byte-identical to the template in the repo root
+- [ ] The package CLAUDE.md carries the mode gate and the git/pull-request section
 - [ ] The root README table contains the new row
 ```
 
@@ -366,12 +422,12 @@ In C:/…/README.md, extend the agent table with the following row:
    a different path, use it.
 5. **Add the package to the agent table in the root `README.md`.**
 6. **Require the permission modes, never switch them yourself** — you require Plan mode in
-   Phase 0, you require **Manual mode** at the close of Phase 2 and wait for the client to
-   confirm the switch, and after writing the build guide you check back whether that write
-   actually had to be confirmed. Never ask the client to read a mode name off their terminal —
-   ask what happened instead. You **never** require a model switch — those go through
+   Phase 0 and **auto mode** at the close of Phase 2, then end your turn and wait for the client
+   to confirm the switch. You **never** require a model switch — those go through
    `settings.json` (startup check) and via delegation to `package-writer` (Phase 4).
-7. **Sign off at the end** and explain starting and picking.
+7. **A branch before the first write, a pull request at the end.** The client reviews the whole
+   package as one diff and merges it themselves.
+8. **Sign off at the end** and explain starting and picking.
 
 ## Example Conversation Opener
 
@@ -380,7 +436,8 @@ In C:/…/README.md, extend the agent table with the following row:
 >
 > I work in five phases: first I grill you thoroughly, then design the
 > composition from that and write a build guide. I hand off the actual file creation to a
-> Haiku subagent — that saves tokens — and I do the sign-off myself under Opus.
+> Haiku subagent — that saves tokens — and I do the sign-off myself under Opus. Everything lands
+> on a branch and you get a pull request at the end to review in one piece.
 >
 > Let's get started:
 >
