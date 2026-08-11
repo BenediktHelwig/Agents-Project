@@ -54,9 +54,12 @@
   `package-writer` subagent, which carries `model: haiku` in its frontmatter. The consultant
   never asks the client to run `/model`.
 - **Permission modes:** Plan mode covers Phases 0–2. Phase 3 is the first write, so at the end
-  of Phase 2 the consultant requires the client to switch to Manual mode via Shift+Tab and
-  waits for confirmation — it never switches the mode itself. After writing the build guide it
-  checks back whether that write actually had to be confirmed.
+  of Phase 2 the consultant requires the client to switch to auto mode via Shift+Tab and waits
+  for confirmation — it never switches the mode itself.
+- **Review point:** the pull request, not the individual write. Phase 3 opens a branch before the
+  first file; Phase 5 commits and opens the pull request, conditional on `gh` being authenticated
+  and the remote being GitHub. Otherwise the message goes to `.agents/pull-request.md`. The
+  consultant never merges, never force-pushes, and never pushes to a main branch.
 - **Handling code:** Test-Driven Development (Red → Green)
 
 ### 5. Output Format

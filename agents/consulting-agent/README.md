@@ -35,8 +35,14 @@ claude
 
 The agent begins requirements gathering on its own. Thanks to
 `.claude/settings.json`, the session automatically starts on Opus in Plan mode. Phases 1–2
-stay there; at the end of Phase 2 the agent asks you to switch to **Manual mode** with
-Shift+Tab and waits until you confirm, so every file that follows costs you one confirmation.
+stay there; at the end of Phase 2 the agent asks you to switch to **auto mode** with Shift+Tab
+and waits until you confirm. From there the run goes through in one piece — a branch before the
+first write, the build guide, then the generated files — and you review the whole package as a
+single diff in the pull request it opens in Phase 5, which you merge yourself.
+
+If `gh` is missing or the repository is not on GitHub, branch and commit stay local and the
+message waits at `.agents/pull-request.md` for you to paste.
+
 The model switch to Haiku (Phase 4) and back to Opus (Phase 5) runs through the
 `package-writer` subagent — no manual switching needed. By default, it places the package under
 `agents/<package-name>/` of this repo; you name a different target path during the conversation.
@@ -66,7 +72,11 @@ core mechanic.
 - **Opus plans, Haiku builds, Opus signs off** — the model switch happens automatically via
   `.claude/settings.json` (startup check) and via the `package-writer` subagent (Phase 4). The
   consultant never requires a model switch; it only handles permission modes (Plan mode for
-  Phases 1–2, manual edit approval from Phase 3 on).
+  Phases 1–2, auto mode from Phase 3 on).
+- **The pull request is the review point** — not the individual write confirmation. Confirming
+  each file one at a time produces click-through, not review; a single diff on a branch is the
+  better thing to read. Opening the pull request is conditional on `gh` and a GitHub remote, so
+  the agent stays usable elsewhere.
 - **Generated roles are real subagents** under `.claude/agents/` with `model:` in the frontmatter.
   The orchestrator delegates via the Agent tool; there is no file-based JSON protocol and
   no `orchestration-config.json`.

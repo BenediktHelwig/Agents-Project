@@ -34,7 +34,8 @@ claude
 ```
 
 `.claude/settings.json` puts the session on Opus in Plan Mode. You will be asked once per session
-to leave Plan Mode before anything is written — the model switches happen on their own.
+to switch to auto mode before anything is written; after that the work runs through in one go and
+you review it as a whole in the pull request. The model switches happen on their own.
 
 ## Using it in another repository
 
@@ -64,9 +65,14 @@ Beyond that it writes exactly what you asked for: tests, implementation and docu
 
 ## Git
 
-It creates a branch before the first change and commits after each phase, so the TDD sequence
-stays visible in the history. **It never pushes.** You get a pull request message to paste, you
-review, and any remarks come back as an additional commit on the same branch.
+It creates a branch before the first change and commits after each phase, so the TDD sequence stays
+visible in the history. At the end it opens a pull request — if `gh` is installed, authenticated,
+and the project is on GitHub. Otherwise branch and commits stay local and you get the message at
+`.agents/pull-request.md` to paste yourself.
+
+You review the whole change as one diff and merge it. Remarks come back as an additional commit on
+the same branch, so the pull request updates itself. **It never merges, never force-pushes, and
+never pushes to a main branch.**
 
 ## Dependencies
 

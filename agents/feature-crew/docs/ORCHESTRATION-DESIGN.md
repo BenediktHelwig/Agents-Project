@@ -116,9 +116,16 @@ instead would tell a resuming session nothing.
 ## Git
 
 Branch before the first change, a commit per phase so the TDD sequence stays legible in the
-history, and **never a push** — remote access needs a passphrase no agent has. The pull request
-message is written to disk for the user to paste; review remarks return as an additional commit on
-the same branch. Only the *format* — branch naming, commit style — comes from the profile.
+history, and a pull request at the end. That pull request is the review point: the user reads the
+whole change as one diff rather than confirming one write at a time, which is also why the mode
+gate leads into auto mode rather than into per-write confirmation.
+
+Opening it depends on the environment, so the orchestrator checks instead of assuming: `gh`
+authenticated and a GitHub remote means push and `gh pr create`; anything else means branch and
+commits stay local and the message goes to `.agents/pull-request.md` for the user to paste. A
+missing tool never fails a run — the work is done either way. Pushing a main branch, force-pushing
+and merging stay out of bounds. Only the *format* — branch naming, commit style — comes from the
+profile.
 
 ## Deliberately Not Included
 

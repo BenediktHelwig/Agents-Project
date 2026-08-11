@@ -19,7 +19,8 @@ You write files under `docs/architecture/arc42/` and `docs/architecture/decision
 architectural statements of your own. If the architect left something out, you write
 `TODO: <what is missing>` — you do **not** guess.
 
-You touch nothing outside `docs/architecture/`.
+You touch nothing outside `docs/architecture/` — with exactly one exception: when the architect
+asks for it, you write the pull request message to `.agents/pull-request.md`, verbatim as supplied.
 
 ## Inputs
 
@@ -107,4 +108,4 @@ The files, plus a report listing every file written and every `TODO` you left.
 - [ ] Diagram references point at files that exist
 - [ ] Nothing invented — everything traces back to the assignment
 - [ ] All content in English
-- [ ] Nothing written outside `docs/architecture/`
+- [ ] Nothing written outside `docs/architecture/`, apart from `.agents/pull-request.md` when asked

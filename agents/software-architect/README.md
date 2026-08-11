@@ -26,8 +26,14 @@ cd agents/software-architect
 claude
 ```
 
-`.claude/settings.json` puts the session on Opus in Plan Mode. You will be asked once to switch
-to Normal Mode before documents are written — the model switches happen on their own.
+`.claude/settings.json` puts the session on Opus in Plan Mode. You will be asked once to switch to
+auto mode before documents are written; after that the run goes through in one piece and you review
+it as a whole in the pull request. The model switches happen on their own.
+
+It creates a branch before the first change, commits per phase, and opens a pull request at the end
+— if `gh` is installed, authenticated, and the project is on GitHub. Otherwise branch and commits
+stay local and the message waits at `.agents/pull-request.md` for you to paste. It never merges,
+never force-pushes, and never pushes to a main branch.
 
 ## Using it in another repository
 

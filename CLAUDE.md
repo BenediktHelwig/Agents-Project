@@ -12,7 +12,11 @@ the repo as a whole — it is **not** an agent persona. An agent's persona lives
    (plus its documented skills). If a change breaks this property, it's wrong.
 3. **Markdown and JSON only.** No build steps, no runtime dependencies, no
    installation.
-4. **Local only.** Agents work without internet calls on the user's system.
+4. **Local only — with one named exception.** The work itself happens on the user's machine: no
+   web research, no external services for the actual task. Git remote operations and opening a
+   pull request are the exception. They stay **optional**, so principle 3 holds: an agent checks
+   whether `gh` and a GitHub remote are present and falls back to a pull request message on disk
+   if they are not. `gh` is a bonus, never a requirement.
 5. **Shared skills live at the root.** Everything under `.claude/skills/` is available to all
    agents in this repo. An agent that needs a skill names it in its README under
    *Dependencies* — otherwise it gets lost when picked.
@@ -61,3 +65,9 @@ agent folder and is carried along when copied.
 - **Test-Driven Development**, whenever code is actually produced (Red → Green).
 - **Commits** in English, imperative, prefixed with the affected agent's name,
   e.g. `consulting-agent: extend grill-me phase with escalation paths`.
+- **A branch before the first change, a pull request at the end.** Nothing is written on a main
+  branch. Agents commit per phase, open a pull request and stop there — the merge is the user's.
+  Review remarks come back as an additional commit on the same branch, never as rewritten history.
+  This is where review happens: the user reads the whole change as one diff, not one write at a
+  time. That is also why agents leave Plan mode for **auto mode** rather than confirming each
+  file individually.
