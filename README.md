@@ -52,6 +52,20 @@ Code includes the directories above the working directory.
 > Agent, but the repo conventions from [`CLAUDE.md`](CLAUDE.md). This keeps the repo neutral
 > when multiple agents exist side by side.
 
+### How a run proceeds
+
+Every agent starts on Opus in Plan mode and stays there while it clarifies the assignment with
+you — nothing is written yet. Once the plan is settled it asks you once to switch to **auto
+mode**, then does the work in one go: a branch before the first change, a commit after each
+phase, and a pull request at the end.
+
+You review the whole change as a single diff in that pull request and merge it yourself. Remarks
+come back as an additional commit on the same branch, so the pull request updates itself.
+
+If `gh` is missing or the project is not on GitHub, branch and commits stay local and the agent
+writes the pull request message to a file for you to paste. No agent ever merges, force-pushes,
+or pushes to a main branch.
+
 ## Adopting an Agent into Another Repo
 
 Every agent is scoped so it can be extracted with a single copy operation:
