@@ -73,6 +73,13 @@ The permission mode cannot be changed by an agent, so the architect asks — **e
 assignment**, immediately before the first write delegation. He never asks to switch back:
 review only reads, and after a failed review he must be able to re-delegate straight away.
 
+The gate leads into **auto mode**, not into per-write confirmation. Confirming each file
+individually produces click-through rather than review, and a single write without context is the
+weaker thing to look at anyway. The review point is the pull request at the end of the run, where
+the user reads the whole change as one diff. Opening it is conditional — `gh` authenticated plus a
+GitHub remote — because the package must stay usable in a repository that is not on GitHub; there
+the message lands on disk instead and nothing fails.
+
 `.claude/settings.json` sets `model: opus` and `defaultMode: plan`, so a session started in this
 folder begins in the right state. The startup check in `CLAUDE.md` covers the case where the
 session was started elsewhere.
