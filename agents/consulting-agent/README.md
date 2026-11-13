@@ -1,30 +1,27 @@
 # Consulting Agent
 
 A consultant agent with the persona "10+ years of experience in agent orchestration". It gathers
-requirements through intensive questioning, diagnoses the necessary agent roles from that,
-and generates a finished multi-agent system.
+requirements through intensive questioning, designs the leanest agent composition that solves
+the problem, and writes a finished, pickable package. It can also refactor an existing package
+against the same rules.
 
 ## What It Produces
 
 ```
 agents/<package-name>/
-├── CLAUDE.md                     # What the system is, how to start it
-├── README.md                     # Purpose, picking, dependencies
+├── CLAUDE.md                     # The main agent (orchestrator), flow, mode gate, git
+├── README.md                     # Purpose, starting, picking, dependencies
 ├── .claude/
-│   ├── agents/
-│   │   ├── orchestrator.md       # model: opus  (omitted for a single agent)
-│   │   └── <specialist>.md       # model: haiku
+│   ├── settings.json             # starts on Opus in Plan mode
+│   ├── agents/                   # subagents only, e.g. implementer (sonnet), reviewer (opus)
 │   └── skills/
 │       └── grill-me/SKILL.md     # bundled
 └── docs/
-    ├── ORCHESTRATION-DESIGN.md   # only for an orchestra
-    └── BUILD-SPEC.md             # the completed build guide
+    └── ORCHESTRATION-DESIGN.md   # only if there is at least one subagent
 ```
 
 The package is self-contained: a single copy operation is enough to adopt it into another repo.
-
-The consultant **does not orchestrate itself** — it advises and generates. The generated
-agents take over execution.
+The consultant **does not orchestrate itself** — it advises and generates.
 
 ## Starting
 
@@ -33,56 +30,58 @@ cd agents/consulting-agent
 claude
 ```
 
-The agent begins requirements gathering on its own. Thanks to
-`.claude/settings.json`, the session automatically starts on Opus in Plan mode. Phases 1–2
-stay there; at the end of Phase 2 the agent asks you to switch to **auto mode** with Shift+Tab
-and waits until you confirm. From there the run goes through in one piece — a branch before the
-first write, the build guide, then the generated files — and you review the whole package as a
-single diff in the pull request it opens in Phase 5, which you merge yourself.
+Thanks to `.claude/settings.json`, the session starts on Opus in Plan mode. To rework an existing
+package instead of creating one, name it at the start (e.g. "refactor `feature-crew`").
 
-If `gh` is missing or the repository is not on GitHub, branch and commit stay local and the
-message waits at `.agents/pull-request.md` for you to paste.
+## How a Run Proceeds
 
-The model switch to Haiku (Phase 4) and back to Opus (Phase 5) runs through the
-`package-writer` subagent — no manual switching needed. By default, it places the package under
-`agents/<package-name>/` of this repo; you name a different target path during the conversation.
+| Phase | Mode | What happens |
+| --- | --- | --- |
+| 0 Startup check | Plan | Model and mode are verified |
+| 1 Grill-me | Plan | Requirements, splitting rule per role, model per role, package name |
+| 2 Composition | Plan | Roles, flow — then you switch to **auto mode** with Shift+Tab |
+| 3 Build | auto | Branch, all files written in one go |
+| 4 Sign-off | auto | Substantive check, commit, pull request |
+
+You review the whole package as a single diff in the pull request and merge it yourself. If `gh`
+is missing or the repository is not on GitHub, branch and commit stay local and the message waits
+at `.agents/pull-request.md` for you to paste.
 
 ## Dependencies
 
 | Skill | Origin | Purpose |
 | --- | --- | --- |
-| `grill-me` | `.claude/skills/grill-me/` (repo root) | Phase 1 of the consulting workflow: relentlessly questioning the requirements |
+| `grill-me` | `.claude/skills/grill-me/` (repo root) | Phase 1: relentlessly questioning the requirements; copied into every generated package |
 
 When adopting into another repo: copy this folder **and** copy `grill-me` along to
-`.claude/skills/grill-me/` in the target repo. Without the skill, the agent is missing its
-core mechanic.
+`.claude/skills/grill-me/` in the target repo.
 
 ## Structure
 
-| File | Content |
-| --- | --- |
-| [`CLAUDE.md`](CLAUDE.md) | The agent definition: persona, 5-phase workflow, templates for generated agents and configuration |
-| [`.claude/settings.json`](.claude/settings.json) | Startup configuration: `model: opus`, `permissions.defaultMode: plan` |
-| [`.claude/agents/package-writer.md`](.claude/agents/package-writer.md) | Subagent for Phase 4: file creation under Haiku |
-| [`docs/CONTEXT-SUMMARY.md`](docs/CONTEXT-SUMMARY.md) | Origin context, core requirements, and design decisions |
+| File | Content | Loaded |
+| --- | --- | --- |
+| [`CLAUDE.md`](CLAUDE.md) | Persona, ground rules, splitting rule, Phases 0–4 | every turn |
+| [`.claude/settings.json`](.claude/settings.json) | `model: opus`, `permissions.defaultMode: plan` | at startup |
+| [`docs/PACKAGE-TEMPLATES.md`](docs/PACKAGE-TEMPLATES.md) | Target structure, file templates, sign-off checklist | Phase 3 only |
+| [`docs/REFACTOR-MODE.md`](docs/REFACTOR-MODE.md) | Diagnosis and rework of an existing package | refactor runs only |
+| [`docs/CONTEXT-SUMMARY.md`](docs/CONTEXT-SUMMARY.md) | Origin context and design decisions | never by the agent |
 
 ## Design Decisions
 
 - **grill-me runs automatically** — the agent never asks whether it may ask questions.
-- **Opus plans, Haiku builds, Opus signs off** — the model switch happens automatically via
-  `.claude/settings.json` (startup check) and via the `package-writer` subagent (Phase 4). The
-  consultant never requires a model switch; it only handles permission modes (Plan mode for
-  Phases 1–2, auto mode from Phase 3 on).
-- **The pull request is the review point** — not the individual write confirmation. Confirming
-  each file one at a time produces click-through, not review; a single diff on a branch is the
-  better thing to read. Opening the pull request is conditional on `gh` and a GitHub remote, so
-  the agent stays usable elsewhere.
-- **Generated roles are real subagents** under `.claude/agents/` with `model:` in the frontmatter.
-  The orchestrator delegates via the Agent tool; there is no file-based JSON protocol and
-  no `orchestration-config.json`.
-- **One agent = one fixed model** — the model is determined per agent in conversation, each with
-  the consultant's recommendation.
-- **Only the orchestrator grills** — as subagents, specialists have no conversation partner and
-  instead get a self-check checklist.
-- **The package brings `grill-me` along** — picking means copying a folder.
+- **Opus writes the package directly.** The former flow (Opus writes a full `BUILD-SPEC.md`, a
+  Haiku subagent copies it into files) saved nothing: Opus had already produced every word, and
+  the spec doubled the pull request. Files are written in parallel in a single response.
+- **Binding splitting rule** — a role becomes a subagent only for a fresh view, real
+  parallelism, a large block a cheaper model does reliably, or restricted tools. Split by
+  context, not by job title.
+- **Variant B as the default** for implementation work: main agent (opus) plans and signs off,
+  one `implementer` (sonnet) does test → code → docs in one context, a read-only `reviewer`
+  (opus) checks the diff.
+- **Three models:** `opus` for judgment, `sonnet` for demanding implementation, `haiku` for
+  purely mechanical work.
+- **The orchestrator is the main session**, never a subagent — subagents cannot talk to the user
+  or call other subagents.
+- **Templates are loaded on demand** — they only cost tokens in the phase that needs them.
+- **The pull request is the review point**, not the individual write confirmation.
 - **Local only** — no API calls, no internet.
