@@ -8,6 +8,9 @@ the repo as a whole — it is **not** an agent persona. An agent's persona lives
 
 1. **One agent = one folder.** Everything an agent needs lives under
    `agents/<agent-name>/`. No agent reads files from another agent's folder.
+   **Exception:** The `consulting-agent` is a generator — it reads and changes other package
+   folders when it creates or refactors a package. The packages themselves never depend on each
+   other.
 2. **Pickability.** Every agent must be adoptable into a foreign repo by copying its folder
    (plus its documented skills). If a change breaks this property, it's wrong.
 3. **Markdown and JSON only.** No build steps, no runtime dependencies, no
@@ -47,12 +50,14 @@ agents/<package-name>/
 ├── CLAUDE.md
 ├── README.md
 ├── .claude/
-│   ├── agents/            # the roles as subagents, with model: in the frontmatter
+│   ├── agents/            # the subagents, with model: in the frontmatter
 │   └── skills/            # bundled skills, so a single copy operation is enough
 └── docs/
 ```
 
-The roles communicate via delegation (Agent tool), not via files.
+The package `CLAUDE.md` is the main agent (orchestrator); `.claude/agents/` holds subagents only,
+because a subagent can neither talk to the user nor call other subagents. The roles communicate via
+delegation (Agent tool), not via files.
 
 **Note:** Hand-written agents may also have a `.claude/` directory with their own
 subagents and a `settings.json` — pickability is preserved because everything lives in the

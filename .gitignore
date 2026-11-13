@@ -28,3 +28,6 @@ $RECYCLE.BIN/
 !.env.example
 *.key
 *.pem
+
+# --- Crash dumps ---
+*.stackdump

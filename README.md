@@ -31,7 +31,7 @@ under `agents/`.
 
 | Agent | Purpose | Dependencies |
 | --- | --- | --- |
-| [`consulting-agent`](agents/consulting-agent/) | Designs and generates multi-agent systems for any domain | Skill `grill-me` |
+| [`consulting-agent`](agents/consulting-agent/) | Designs, generates and refactors agent systems for any domain | Skill `grill-me` |
 | [`software-architect`](agents/software-architect/) | Documents existing architectures, designs new ones, generates draw.io UML and ADRs | Skill `grill-me` (bundled) |
 | [`feature-crew`](agents/feature-crew/) | Builds features test-driven in any project, adapting to its stack and conventions | Skill `grill-me` (bundled) |
 
