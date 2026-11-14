@@ -100,6 +100,12 @@ alike. Once an agent is picked into a foreign repo, its own git rules apply ther
    `GH_TOKEN` must be set again in **every single tool call** that pushes or opens a pull
    request — shell variables do not survive the call. A call without the token silently falls
    back to the personal account, and the pull request can then no longer be approved by the user.
+   A PreToolUse hook in `.claude/settings.json` rejects such calls before they run — it only lets
+   them through if the token script appears in the same command. It checks for `push` together
+   with `git` and for `pr create`, so it also covers forms like `git -C <path> push`. That is
+   deliberately coarse: a harmless command like `git log --grep=push` is blocked too. Then simply
+   put the token fetch in front — a false alarm costs nothing, a push that slips through costs the
+   approval. See also the self-check below.
 
    If the token script fails (missing key, app uninstalled, no network): branch and commits stay
    local, the message stays in `.claude/local/pull-request.md` for manual use — no abort because

@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "PowerShell|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "timeout": 5,
+            "statusMessage": "Checking GitHub App token...",
+            "command": "in=$(cat); case \"$in\" in *Get-GitHubAppToken*) exit 0;; esac; d=0; case \"$in\" in *push*) case \"$in\" in *git*) d=1;; esac;; esac; case \"$in\" in *\"pr create\"*) d=1;; esac; [ \"$d\" = 1 ] && printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Token missing in this call. Push and pull request must run through the GitHub App token, otherwise they run under the personal account and the pull request can no longer be approved. Shell state does not survive a tool call: in the SAME command, first set GH_TOKEN from Get-GitHubAppToken.ps1, then run the push or pull request command.\"}}'; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}
