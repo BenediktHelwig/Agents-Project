@@ -13,10 +13,12 @@ the repo as a whole — it is **not** an agent persona. An agent's persona lives
 3. **Markdown and JSON only.** No build steps, no runtime dependencies, no
    installation.
 4. **Local only — with one named exception.** The work itself happens on the user's machine: no
-   web research, no external services for the actual task. Git remote operations and opening a
-   pull request are the exception. They stay **optional**, so principle 3 holds: an agent checks
-   whether `gh` and a GitHub remote are present and falls back to a pull request message on disk
-   if they are not. `gh` is a bonus, never a requirement.
+   web research, no external services for the actual task. Git remote operations, opening a pull
+   request and fetching the GitHub App token for both are the exception. They stay **optional**,
+   so principle 3 holds: if the remote step cannot run, the branch and commits stay local and the
+   pull request message stays on disk for manual use. In this repository, push and pull request
+   go **only** through the GitHub App token — never through the personal `gh` login (see
+   [Git & Pull Requests](#git--pull-requests)).
 5. **Shared skills live at the root.** Everything under `.claude/skills/` is available to all
    agents in this repo. An agent that needs a skill names it in its README under
    *Dependencies* — otherwise it gets lost when picked.
@@ -70,4 +72,86 @@ agent folder and is carried along when copied.
   Review remarks come back as an additional commit on the same branch, never as rewritten history.
   This is where review happens: the user reads the whole change as one diff, not one write at a
   time. That is also why agents leave Plan mode for **auto mode** rather than confirming each
-  file individually.
+  file individually. The mechanics are in [Git & Pull Requests](#git--pull-requests).
+
+## Git & Pull Requests
+
+This section applies to every session in this repository — at the root and in an agent folder
+alike. Once an agent is picked into a foreign repo, its own git rules apply there.
+
+### Workflow
+
+1. **A branch before the first change.** Never work on `main`. Name it after the existing scheme
+   (`feat/<topic>`, `fix/<topic>`, `chore/<topic>`).
+2. **One commit per phase** — e.g. tests, implementation, documentation. That keeps the TDD
+   sequence visible in the history: a red test commit, then a green implementation commit.
+3. **A pull request at the end.** Write the pull request text to `.claude/local/pull-request.md`
+   (ignored by git), then fetch the GitHub App token and push and open the pull request with it:
+
+   ```powershell
+   $env:GH_TOKEN = & "C:\Users\bened\.github-app\Get-GitHubAppToken.ps1"
+   git push -u origin HEAD
+   gh pr create --title "<title>" --body-file .claude/local/pull-request.md
+   ```
+
+   Then report the pull request URL to the user for review. They can approve and merge it
+   regularly — the admin bypass is no longer needed.
+
+   `GH_TOKEN` must be set again in **every single tool call** that pushes or opens a pull
+   request — shell variables do not survive the call. A call without the token silently falls
+   back to the personal account, and the pull request can then no longer be approved by the user.
+   A PreToolUse hook in `.claude/settings.json` rejects such calls before they run — it only lets
+   them through if the token script appears in the same command. It checks for `push` together
+   with `git` and for `pr create`, so it also covers forms like `git -C <path> push`. That is
+   deliberately coarse: a harmless command like `git log --grep=push` is blocked too. Then simply
+   put the token fetch in front — a false alarm costs nothing, a push that slips through costs the
+   approval. See also the self-check below.
+
+   If the token script fails (missing key, app uninstalled, no network): branch and commits stay
+   local, the message stays in `.claude/local/pull-request.md` for manual use — no abort because
+   of a missing tool. **No fallback to the personal `gh` login** — a pull request under the user's
+   name is exactly the problem this app solves.
+4. **Never push to `main`, never force-push, never merge.** Pushing the feature branch and opening
+   the pull request is the agent's job. The merge is the user's, after they have reviewed it.
+5. **Review remarks come back as an additional commit** on the same branch, which updates the
+   pull request by itself. Never rewrite history the user has already seen.
+
+**Git stays with one role.** The session that orchestrates runs every git and `gh` command
+itself; subagents write files and report. That way nobody produces a commit made of half of
+someone else's work.
+
+### Identity — who commits, who opens the pull request
+
+- **Commits** run as `claudecodeagents[bot]`. This is set repo-locally in `.git/config` and applies
+  automatically — nothing extra to set when committing. The global identity stays untouched; other
+  repos are not affected.
+- **The pull request author** is the GitHub App `ClaudeCodeAgents`. Only that decides about
+  approval: GitHub blocks self-approval based on the pull request author, the committer identity is
+  irrelevant for it. Because the pull request comes from the bot, the user is a regular reviewer
+  instead of the author — which is why the bypass is no longer needed.
+- **The token** is valid for 60 minutes and is never written to a file, a remote URL or
+  `.git/config`. It lives only in the one command that sets it — not in the session. Every further
+  push or pull request call fetches it again.
+- **Never read the private key.** It is used exclusively by the token script; a `deny` rule in
+  `~/.claude/settings.json` additionally blocks read access technically — it applies globally,
+  because the key lives globally too.
+
+Permissions, key rollover and connecting further repos are documented in
+`C:\Users\bened\.github-app\README.md` (outside the repo, not versioned).
+
+### Self-check — when verifying the setup
+
+`git config --get credential.helper` shows only `manager` (GCM from the system gitconfig). That is
+**not** a sign of a problem: for `github.com`, a host-specific entry in the user gitconfig applies,
+whose first, empty value discards the inherited helper list and then registers `gh`. Reading only
+the unqualified key leads to the wrong conclusion.
+
+So check the chain `git push` actually takes:
+
+```powershell
+"protocol=https`nhost=github.com`n`n" | git credential fill
+```
+
+With `GH_TOKEN` set, it must show `username=x-access-token` and a `ghs_` password. If it shows the
+personal account with a `gho_` password, the token is missing from the call — the fallback to the
+personal account has kicked in.
