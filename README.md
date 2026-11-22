@@ -34,6 +34,7 @@ under `agents/`.
 | [`consulting-agent`](agents/consulting-agent/) | Designs, generates and refactors agent systems for any domain | Skill `grill-me` |
 | [`software-architect`](agents/software-architect/) | Documents existing architectures, designs new ones, generates draw.io UML and ADRs | Skill `grill-me` (bundled) |
 | [`feature-crew`](agents/feature-crew/) | Builds features test-driven in any project, adapting to its stack and conventions | Skill `grill-me` (bundled) |
+| [`dorfromantik-crew`](agents/dorfromantik-crew/) | Builds the Dorfromantik scoring app (Nextcloud, PWA) in four test-driven steps with stacked pull requests | Skill `grill-me` (bundled) |
 
 ## Using an Agent
 
